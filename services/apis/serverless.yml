@@ -1,0 +1,204 @@
+service:
+  name: ${file(../../package.json):name}-${self:provider.apiVersion}-apis
+
+plugins:
+- serverless-webpack
+- serverless-offline
+- serverless-aws-documentation
+- serverless-plugin-resource-tagging
+provider:
+  name: aws
+  stackTags:
+        "Kuky Engine": "kuky-litecoin-api"
+  apiVersion: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):apiVersion}
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):region}
+  environment:
+    STAGE: ${self:provider.stage}
+    KUKY_COIN_HOST: ${self:custom.kukyCoinHost.${self:provider.stage}}
+    KUKY_COIN_PORT: ${self:custom.kukyCoinPort.${self:provider.stage}}
+    KUKY_COIN_USERNAME: ${self:custom.kukyCoinUsername.${self:provider.stage}}
+    KUKY_COIN_PASSWORD: ${self:custom.kukyCoinPassword.${self:provider.stage}}
+    KUKY_COIN_ADMIN: ${self:custom.kukyCoinAdmin.${self:provider.stage}}
+  apiGateway: ${file(../../deploymentConfig/config.${self:provider.stage}.yml):apiGateway}
+  tags:
+    apiVersion: ${self:provider.apiVersion}
+  versionFunctions: false
+
+functions:
+  get-admin:
+    handler: functions/litecoin.getAdmin
+    events:
+      - http:
+          method: get
+          path: lite-${self:provider.apiVersion}/get-admin
+          cors: true
+          documentation:
+            summary: "Get admin wallet"
+            description: "Get admin wallet"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response admin wallet"
+  get-wallets:
+    handler: functions/litecoin.getWallets
+    events:
+      - http:
+          method: get
+          path: lite-${self:provider.apiVersion}/get-wallets
+          cors: true
+          documentation:
+            summary: "Get wallets list"
+            description: "Get wallets list"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response wallets list"
+  get-wallet-info:
+    handler: functions/litecoin.getWalletInfo
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-wallet-info
+          cors: true
+          documentation:
+            summary: "Get wallet info"
+            description: "Get wallet info"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response wallet info"
+  get-balance:
+    handler: functions/litecoin.getBalance
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-balance
+          cors: true
+          documentation:
+            summary: "Get balance"
+            description: "Get balance"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response balance"
+  get-wallet-address:
+    handler: functions/litecoin.getWalletAddress
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-wallet-address
+          cors: true
+          documentation:
+            summary: "Get wallet address"
+            description: "Get wallet address"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response wallet address"
+  get-addresses-by-label:
+    handler: functions/litecoin.getAddressesByLabel
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-addresses-by-label
+          cors: true
+          documentation:
+            summary: "Get addresses by label"
+            description: "Get addresses by label"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response addresses by label"
+  get-transactions:
+    handler: functions/litecoin.getTransactions
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-transactions
+          cors: true
+          documentation:
+            summary: "Get transactions"
+            description: "Get transactions"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response transactions"
+  get-transaction:
+    handler: functions/litecoin.getTransaction
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/get-transaction
+          cors: true
+          documentation:
+            summary: "Get transaction"
+            description: "Get transaction"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response transaction"
+  send-money:
+    handler: functions/litecoin.sendMoney
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/send-money
+          cors: true
+          documentation:
+            summary: "Send money"
+            description: "Send money"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response transaction"
+  send-to-address:
+    handler: functions/litecoin.sendToAddress
+    events:
+      - http:
+          method: post
+          path: lite-${self:provider.apiVersion}/send-to-address
+          cors: true
+          documentation:
+            summary: "Send to address"
+            description: "Send to address"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response transaction"
+  current-rates:
+    handler: functions/litecoin.currentRates
+    events:
+      - http:
+          method: get
+          path: lite-${self:provider.apiVersion}/current-rates
+          cors: true
+          documentation:
+            summary: "Get current rates"
+            description: "Get current rates"
+            methodResponses:
+              - statusCode: "200"
+                responseBody:
+                  description: "Response current rates"
+
+custom:
+  serverless-offline:
+    port: 4000
+  kukyCoinHost:
+    local: "ltc.kuky.com"
+    dev: "ltc.kuky.com"
+    staging: "ltc.kuky.com"
+    prod: "ltc.kuky.com"
+  kukyCoinPort:
+    local: 9332
+    dev: 9332
+    staging: 9332
+    prod: 9332
+  dotenv:
+    path: ../../.env
+    basePath: ./
+    logging: false
+    include:
+      - ACCESS_KEY_ID
+      - SECRET_ACCESS_KEY

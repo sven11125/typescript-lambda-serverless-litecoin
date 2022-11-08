@@ -1,0 +1,21 @@
+# package directories
+node_modules
+
+# Serverless directories
+.webpack/
+.serverless/
+
+# Development
+package-lock.json
+yarn.lock
+.env
+
+# IDE
+.idea
+.vscode
+
+# Other
+npm-debug.log
+logs
+.eslintcache
+*.log
